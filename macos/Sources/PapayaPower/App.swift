@@ -15,7 +15,7 @@ struct PapayaPowerApp: App {
         }
         .windowResizability(.contentSize)
 
-        // Every detail: overview, lifetime, raw keys, network, UPS.
+        // Every detail: overview, lifetime, raw keys, network, UPS, and the history.
         Window("PapayaPower Details", id: "details") {
             MainView()
                 .environmentObject(model)
@@ -39,12 +39,6 @@ struct PapayaPowerApp: App {
                 Button("Refresh") { model.refresh() }.keyboardShortcut("r")
                 Button("Scan for iPhone / iPad") { model.scanIOS() }.keyboardShortcut("r", modifiers: [.command, .shift])
             }
-        }
-
-        Window("History", id: "history") {
-            HistoryView()
-                .environmentObject(model)
-                .frame(minWidth: 720, minHeight: 460)
         }
 
         Settings {

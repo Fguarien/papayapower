@@ -206,7 +206,7 @@ struct BatteryBars: View {
 }
 
 struct MacInfoPopover: View {
-    @Environment(\.openWindow) private var openWindow
+    @ShowDetails private var showDetails
     let m = MachineInfo.current
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -218,8 +218,7 @@ struct MacInfoPopover: View {
             InfoRow(key: "Serial", value: m.serial)
             InfoRow(key: "OS version", value: m.osVersion)
             Button("More Details…") {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "details")
+                showDetails(.mac)
             }
             .frame(maxWidth: .infinity)
         }
@@ -229,7 +228,7 @@ struct MacInfoPopover: View {
 }
 
 struct BatteryInfoPopover: View {
-    @Environment(\.openWindow) private var openWindow
+    @ShowDetails private var showDetails
     var b: BatterySnapshot
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -243,8 +242,7 @@ struct BatteryInfoPopover: View {
             InfoRow(key: "Battery temperature", value: b.temperature.map { String(format: "%.1f °C", $0) })
             InfoRow(key: "Power adapter", value: b.adapterWatts.map { "\($0) Watt Adapter" } ?? (b.externalConnected == false ? "Not connected" : nil))
             Button("Lifetime Details…") {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "details")
+                showDetails(.mac)
             }
             .frame(maxWidth: .infinity)
         }
@@ -257,7 +255,7 @@ struct BatteryInfoPopover: View {
 
 struct MenuHistoryTab: View {
     @EnvironmentObject var model: AppModel
-    @Environment(\.openWindow) private var openWindow
+    @ShowDetails private var showDetails
 
     struct Month: Identifiable {
         var id: String { device + period }
@@ -318,8 +316,7 @@ struct MenuHistoryTab: View {
             }
             .frame(height: 330)
             Button("Open History Viewer") {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "history")
+                showDetails(.history)
             }
             .controlSize(.small)
         }
@@ -433,13 +430,12 @@ struct MenuNetworkTab: View {
 }
 
 struct MenuFooter: View {
-    @Environment(\.openWindow) private var openWindow
+    @ShowDetails private var showDetails
 
     var body: some View {
         HStack {
             Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "details")
+                showDetails()
             } label: { Label("More Details…", systemImage: "macwindow") }
             Spacer()
             SettingsButton()

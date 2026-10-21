@@ -90,6 +90,8 @@ final class AppModel: ObservableObject {
     @Published var lastPush: (Date, String)?
     @Published var historyRevision = 0
     @Published var peers: [Peer] = []
+    /// What the Details window shows; set before opening it to land on a given item.
+    @Published var detailsSelection: SidebarItem? = .mac
 
     struct Peer: Identifiable {
         var id: String { name }

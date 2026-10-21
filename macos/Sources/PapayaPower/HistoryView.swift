@@ -28,33 +28,30 @@ struct HistoryView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
-            List(selection: $deviceID) {
-                ForEach(devices, id: \.id) { d in
-                    Label(d.name, systemImage: d.kind == .ios ? "iphone" : "laptopcomputer").tag(Optional(d.id))
-                        .contextMenu {
-                            Button("Delete History…", role: .destructive) {
-                                deviceID = d.id
-                                confirmDeleteAll = true
-                            }
-                        }
+        // Lives in the Details window's detail column: one device picker on top instead of a
+        // second sidebar, so the window keeps a single split view.
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                Picker("Device", selection: $deviceID) {
+                    ForEach(devices, id: \.id) { d in
+                        Label(d.name, systemImage: d.kind == .ios ? "iphone" : "laptopcomputer").tag(Optional(d.id))
+                    }
                 }
+                .frame(maxWidth: 260)
+                Picker("", selection: $metric) {
+                    ForEach(Metric.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented).labelsHidden()
             }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 210)
-        } detail: {
+            .padding(10)
+            .disabled(devices.isEmpty)
             if deviceID == nil {
                 ContentUnavailable(title: devices.isEmpty ? "No history yet" : "Select a device",
                                    symbol: "chart.xyaxis.line",
                                    message: devices.isEmpty ? "Readings are saved automatically (Settings › History), or with ⌘S." : "")
             } else {
-                VStack(spacing: 0) {
-                    Picker("", selection: $metric) {
-                        ForEach(Metric.allCases) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented).labelsHidden().frame(maxWidth: 480).padding(10)
-                    chart.frame(height: 220).padding(.horizontal, 16)
-                    table
-                }
+                chart.frame(height: 220).padding(.horizontal, 16)
+                table
             }
         }
         .onAppear { if deviceID == nil { deviceID = devices.first?.id } }
@@ -64,6 +61,10 @@ struct HistoryView: View {
                     .help("Export CSV").disabled(deviceID == nil)
                 Button { confirmDelete = true } label: { Image(systemName: "trash") }
                     .help("Delete selected readings").disabled(selection.isEmpty)
+                Menu {
+                    Button("Delete History of This Device…", role: .destructive) { confirmDeleteAll = true }
+                } label: { Image(systemName: "ellipsis.circle") }
+                    .help("More").disabled(deviceID == nil)
             }
         }
         .confirmationDialog("Delete \(selection.count) reading(s)?", isPresented: $confirmDelete) {

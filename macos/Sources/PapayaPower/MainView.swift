@@ -7,16 +7,15 @@ enum SidebarItem: Hashable {
     case ups(String)
     case peerBattery(String, String)   // peer name, device id
     case peerUPS(String, String)       // peer name, ups id
+    case history
 }
 
 struct MainView: View {
     @EnvironmentObject var model: AppModel
-    @State private var selection: SidebarItem? = .mac
-    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $selection) {
+            List(selection: $model.detailsSelection) {
                 Section("This Mac") {
                     Label(MachineInfo.current.displayName, systemImage: "laptopcomputer")
                         .tag(SidebarItem.mac)
@@ -86,19 +85,16 @@ struct MainView: View {
                         }
                     }
                 }
+                Section("History") {
+                    Label("Saved readings", systemImage: "chart.xyaxis.line")
+                        .tag(SidebarItem.history)
+                }
             }
             .navigationSplitViewColumnWidth(min: 200, ideal: 230)
-            .safeAreaInset(edge: .bottom) {
-                Button {
-                    openWindow(id: "history")
-                } label: {
-                    Label("History", systemImage: "chart.xyaxis.line").frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderless)
-                .padding(10)
-            }
         } detail: {
-            switch selection {
+            switch model.detailsSelection {
+            case .history:
+                HistoryView()
             case .mac, .none:
                 if let m = model.mac {
                     BatteryDetailView(snapshot: m)
