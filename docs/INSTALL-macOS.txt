@@ -1,0 +1,7 @@
+PapayaPower — installation
+
+1. Drag PapayaPower into the Applications folder.
+2. Open it. macOS says it cannot check the developer (the app is not notarised):
+   open System Settings > Privacy & Security, scroll down, click "Open Anyway".
+3. In PapayaPower > Settings > General, tick "Open at login".
+   Leave the role on "Member": the family master computer will see this Mac.
