@@ -5,7 +5,9 @@
 #   ./make-app.sh --install       … and copy it to /Applications (and papaya to /usr/local/bin if writable)
 #   ./make-app.sh --dmg           … and build build/PapayaPower-<version>.dmg
 #
-# Signing: PAPAYA_SIGN_ID=<identity> to use a real certificate; ad hoc otherwise.
+# Signing, in this order: PAPAYA_SIGN_ID=<identity>; the « PapayaPower Local Signing » certificate
+# created once by Tools/make-signing-keychain.sh; ad hoc otherwise. A stable identity keeps the
+# Keychain and firewall rules (Little Snitch…) valid across builds; ad hoc changes on every build.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -68,7 +70,14 @@ fi
 cp "$OUT/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
 echo "==> sign"
-SIGN_ID="${PAPAYA_SIGN_ID:--}"
+SIGN_ID="${PAPAYA_SIGN_ID:-}"
+KC="$HOME/Library/Keychains/papayapower-signing.keychain-db"
+if [ -z "$SIGN_ID" ] && [ -f "$KC" ] && security find-identity -p codesigning "$KC" 2>/dev/null | grep -q "PapayaPower Local Signing"; then
+  security unlock-keychain -p "" "$KC"
+  SIGN_ID="PapayaPower Local Signing"
+fi
+SIGN_ID="${SIGN_ID:--}"
+echo "signing identity: $SIGN_ID"
 codesign --force --timestamp=none -s "$SIGN_ID" "$APP/Contents/Helpers/papaya"
 codesign --force --timestamp=none -s "$SIGN_ID" "$APP"
 codesign --verify --strict "$APP"
