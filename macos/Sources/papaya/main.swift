@@ -80,7 +80,7 @@ if flags.contains("--metrics") {
 func line(_ k: String, _ v: String?) { if let v { print(k.padding(toLength: 24, withPad: " ", startingAt: 0) + v) } }
 
 for b in [battery].compactMap({ $0 }) + ios {
-    print("== \(b.deviceName) (\(b.model ?? "?")) — \(b.osVersion ?? "")")
+    print("== \(b.deviceName) (\(b.marketingName ?? b.model ?? "?")) — \(b.osVersion ?? "")")
     line("Charge", b.chargePercent.map { Format.percent($0) })
     line("Current / full", b.currentCapacity.flatMap { c in b.fullChargeCapacity.map { "\(c) / \($0) mAh" } })
     line("Design capacity", b.designCapacity.map(Format.mah))

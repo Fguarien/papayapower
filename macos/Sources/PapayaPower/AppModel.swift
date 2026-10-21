@@ -80,6 +80,7 @@ enum AutoSave: String, CaseIterable, Identifiable {
 final class AppModel: ObservableObject {
     static let shared = AppModel()
     static let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+    static let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0"
 
     @Published var mac: BatterySnapshot?
     @Published var ios: [BatterySnapshot] = []
@@ -122,8 +123,10 @@ final class AppModel: ObservableObject {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
         if UserDefaults.standard.bool(forKey: Pref.iosEnabled) { scanIOS() }
         applyNetworkPrefs()
+        // First push once peers and iOS devices had time to answer (a PUT replaces the whole
+        // group: pushing before them would erase the previous values).
         Task {
-            try? await Task.sleep(nanoseconds: 10_000_000_000)
+            try? await Task.sleep(nanoseconds: 45_000_000_000)
             self.push()
         }
     }
@@ -348,6 +351,10 @@ final class AppModel: ObservableObject {
         let fresh = peers.compactMap { $0.readings }.filter { Date().timeIntervalSince($0.timestamp) < 900 }
         let battery = [mac].compactMap { $0 } + ios + fresh.flatMap { $0.batteries }
         let ups = self.ups + fresh.flatMap { $0.ups }
+        guard !battery.isEmpty || !ups.isEmpty else {
+            lastPush = (Date(), "skipped: nothing to publish")
+            return
+        }
         Task {
             let result: String
             do {

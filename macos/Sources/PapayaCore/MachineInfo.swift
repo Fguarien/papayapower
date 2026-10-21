@@ -54,8 +54,11 @@ public struct MachineInfo: Sendable {
     public static let current: MachineInfo = {
         let host = Host.current().localizedName ?? ProcessInfo.processInfo.hostName
         let v = ProcessInfo.processInfo.operatingSystemVersion
-        return MachineInfo(model: sysctlString("hw.model") ?? "Mac",
-                           productName: platformProperty("product-name"),
+        let model = sysctlString("hw.model") ?? "Mac"
+        // Apple silicon: "MacBook Air (M5, 2026)". Intel: the model identifier again — ignore it.
+        let product = platformProperty("product-name").flatMap { $0 == model || $0.isEmpty ? nil : $0 }
+        return MachineInfo(model: model,
+                           productName: product,
                            serial: platformProperty(kIOPlatformSerialNumberKey),
                            hostName: host,
                            osVersion: osMarketingName(v))

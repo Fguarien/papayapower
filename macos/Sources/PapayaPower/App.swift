@@ -8,7 +8,15 @@ struct PapayaPowerApp: App {
     @AppStorage(Pref.menuBarEnabled) private var menuBarEnabled = true
 
     var body: some Scene {
+        // The PapayaPower window: the tabbed view the menu bar panel expands into.
         Window("PapayaPower", id: "main") {
+            MenuBarContent()
+                .environmentObject(model)
+        }
+        .windowResizability(.contentSize)
+
+        // Every detail: overview, lifetime, raw keys, network, UPS.
+        Window("PapayaPower Details", id: "details") {
             MainView()
                 .environmentObject(model)
                 .frame(minWidth: 760, minHeight: 520)
@@ -45,7 +53,7 @@ struct PapayaPowerApp: App {
         }
 
         MenuBarExtra(isInserted: $menuBarEnabled) {
-            MenuBarContent()
+            CompactMenuView()
                 .environmentObject(model)
         } label: {
             MenuBarLabel()

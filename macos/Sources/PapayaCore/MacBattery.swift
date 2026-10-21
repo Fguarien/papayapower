@@ -21,8 +21,10 @@ public enum MacBattery {
     public static func read() -> BatterySnapshot? {
         guard let p = registryProperties() else { return nil }
         let machine = MachineInfo.current
+        // Named after the computer ("Arya’s MacBook Air"), like iPhones: two Macs of the same
+        // family stay distinct in the history and in Prometheus labels.
         var s = BatterySnapshot(kind: .mac, deviceID: machine.serial ?? machine.hostName,
-                                deviceName: machine.displayName)
+                                deviceName: machine.hostName)
         s.model = machine.model
         s.marketingName = machine.marketingName
         s.osVersion = machine.osVersion

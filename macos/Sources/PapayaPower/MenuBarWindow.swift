@@ -219,7 +219,7 @@ struct MacInfoPopover: View {
             InfoRow(key: "OS version", value: m.osVersion)
             Button("More Details…") {
                 NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "main")
+                openWindow(id: "details")
             }
             .frame(maxWidth: .infinity)
         }
@@ -244,7 +244,7 @@ struct BatteryInfoPopover: View {
             InfoRow(key: "Power adapter", value: b.adapterWatts.map { "\($0) Watt Adapter" } ?? (b.externalConnected == false ? "Not connected" : nil))
             Button("Lifetime Details…") {
                 NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "main")
+                openWindow(id: "details")
             }
             .frame(maxWidth: .infinity)
         }
@@ -439,17 +439,10 @@ struct MenuFooter: View {
         HStack {
             Button {
                 NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "main")
-            } label: { Label("Open PapayaPower", systemImage: "macwindow") }
+                openWindow(id: "details")
+            } label: { Label("More Details…", systemImage: "macwindow") }
             Spacer()
-            if #available(macOS 14.0, *) {
-                SettingsLink { Image(systemName: "gearshape") }.help("Settings")
-            } else {
-                Button {
-                    NSApp.activate(ignoringOtherApps: true)
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                } label: { Image(systemName: "gearshape") }.help("Settings")
-            }
+            SettingsButton()
             Button { NSApp.terminate(nil) } label: { Image(systemName: "power") }.help("Quit")
         }
         .buttonStyle(.borderless)
