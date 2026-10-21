@@ -1,0 +1,6 @@
+/* PapayaPower module — append to ~/.config/waybar/style.css */
+#custom-papaya { padding: 0 8px; }
+#custom-papaya.charging { color: #a6e3a1; }
+#custom-papaya.warning { color: #f9e2af; }
+#custom-papaya.critical { color: #f38ba8; }
+#custom-papaya.ups-battery { color: #fab387; }

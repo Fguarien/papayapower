@@ -1,0 +1,10 @@
+.DS_Store
+macos/.build/
+macos/build/
+macos/.swiftpm/
+linux/**/__pycache__/
+*.pyc
+*.secret
+*.key
+.env
+*.bak*

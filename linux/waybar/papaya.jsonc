@@ -1,0 +1,8 @@
+// Add "custom/papaya" to modules-right in ~/.config/waybar/config.jsonc, then paste this block.
+"custom/papaya": {
+  "exec": "~/.local/bin/papaya --waybar",
+  "return-type": "json",
+  "interval": 30,
+  "tooltip": true,
+  "on-click": "~/.local/bin/papayapower"
+}

@@ -1,0 +1,7 @@
+[Unit]
+Description=PapayaPower — save battery history, notify, push metrics
+
+[Service]
+Type=oneshot
+ExecStart=@BIN@/papaya --record
+Nice=10
