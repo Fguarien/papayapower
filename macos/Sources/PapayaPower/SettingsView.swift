@@ -104,16 +104,24 @@ struct NotificationSettings: View {
         Form {
             Toggle("Send notifications", isOn: $enabled)
             Group {
-                Stepper("Mac battery below \(percent) %", value: $percent, in: 0...95, step: 5)
-                Stepper(minutes == 0 ? "Mac remaining time: off" : "Mac remaining time below \(minutes) min",
-                        value: $minutes, in: 0...120, step: 5)
-                Stepper(iosPercent == 0 ? "iPhone / iPad: off" : "iPhone / iPad below \(iosPercent) %",
-                        value: $iosPercent, in: 0...95, step: 5)
+                stepper("Mac battery below \(percent) %", $percent, 0...95)
+                stepper(minutes == 0 ? "Mac remaining time: off" : "Mac remaining time below \(minutes) min",
+                        $minutes, 0...120)
+                stepper(iosPercent == 0 ? "iPhone / iPad: off" : "iPhone / iPad below \(iosPercent) %",
+                        $iosPercent, 0...95)
                 Toggle("UPS switches to battery or runs low", isOn: $ups)
             }
             .disabled(!enabled)
             Text("Each alert fires once when the threshold is crossed, and re-arms when the level is back above it.")
                 .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    /// Stepper first, text on its right — same column as the checkboxes.
+    func stepper(_ title: String, _ value: Binding<Int>, _ range: ClosedRange<Int>) -> some View {
+        HStack(spacing: 6) {
+            Stepper(title, value: value, in: range, step: 5).labelsHidden()
+            Text(title).monospacedDigit()
         }
     }
 }
