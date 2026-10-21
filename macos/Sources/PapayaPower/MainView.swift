@@ -38,18 +38,17 @@ struct MainView: View {
                         if model.iosScanning { ProgressView().controlSize(.mini) }
                     }
                 }
-                Section("UPS") {
-                    ForEach(model.ups) { u in
-                        Label(u.name, systemImage: u.onBattery == true ? "bolt.slash" : "powerplug")
-                            .badge(u.chargePercent.map { "\(Int($0)) %" } ?? "")
-                            .tag(SidebarItem.ups(u.id))
-                    }
-                    if model.ups.isEmpty {
-                        Text("No UPS. Plug one in by USB, or add a NUT server in Settings.")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    if let e = model.nutError {
-                        Text(e).font(.caption).foregroundStyle(.orange)
+                // Only once a UPS shows up (or a configured NUT server fails, so the error is seen).
+                if !model.ups.isEmpty || model.nutError != nil {
+                    Section("UPS") {
+                        ForEach(model.ups) { u in
+                            Label(u.name, systemImage: u.onBattery == true ? "bolt.slash" : "powerplug")
+                                .badge(u.chargePercent.map { "\(Int($0)) %" } ?? "")
+                                .tag(SidebarItem.ups(u.id))
+                        }
+                        if let e = model.nutError {
+                            Text(e).font(.caption).foregroundStyle(.orange)
+                        }
                     }
                 }
                 if model.isMaster && !model.peers.isEmpty {
