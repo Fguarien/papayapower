@@ -35,11 +35,18 @@ struct PapayaPowerApp: App {
                     .keyboardShortcut("p")
                     .disabled(model.mac == nil)
             }
+            HelpCommands()
             CommandMenu("Devices") {
                 Button("Refresh") { model.refresh() }.keyboardShortcut("r")
                 Button("Scan for iPhone / iPad") { model.scanIOS() }.keyboardShortcut("r", modifiers: [.command, .shift])
             }
         }
+
+        Window("PapayaPower Help", id: "help") {
+            HelpView()
+                .frame(minWidth: 640, minHeight: 420)
+        }
+        .defaultSize(width: 820, height: 600)
 
         Settings {
             SettingsView()

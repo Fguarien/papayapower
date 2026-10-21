@@ -439,6 +439,7 @@ struct MenuFooter: View {
             } label: { Label("More Details…", systemImage: "macwindow") }
             Spacer()
             SettingsButton()
+            HelpButton()
             Button { NSApp.terminate(nil) } label: { Image(systemName: "power") }.help("Quit")
         }
         .buttonStyle(.borderless)

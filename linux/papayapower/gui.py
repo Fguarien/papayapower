@@ -419,6 +419,7 @@ class Window(Adw.ApplicationWindow):
         menu.append("Save Reading to History", "win.save")
         menu.append("Print / Export Report", "win.report")
         menu.append("Preferences", "win.prefs")
+        menu.append("Help", "win.help")
         menu.append("About PapayaPower", "win.about")
         side_head.pack_end(Gtk.MenuButton(icon_name="open-menu-symbolic", menu_model=menu))
         side_tb.add_top_bar(side_head)
@@ -447,7 +448,7 @@ class Window(Adw.ApplicationWindow):
         self.set_content(split)
 
         for name, cb in (("save", self.save_now), ("report", self.export_report), ("prefs", self.prefs),
-                         ("about", self.about)):
+                         ("help", self.help), ("about", self.about)):
             a = Gio.SimpleAction.new(name, None)
             a.connect("activate", cb)
             self.add_action(a)
@@ -584,6 +585,37 @@ class Window(Adw.ApplicationWindow):
         f.write(html)
         f.close()
         Gtk.FileLauncher.new(Gio.File.new_for_path(f.name)).launch(self, None, None)
+
+    def help(self, *_):
+        """docs/HELP.md (copied next to the package by install.sh), rendered as Pango markup."""
+        import re
+        from pathlib import Path
+        here = Path(__file__).resolve().parent
+        src = next((p for p in (here / "HELP.md", here.parent.parent / "docs" / "HELP.md") if p.exists()), None)
+        text = src.read_text() if src else "Help file missing: see https://github.com/Fguarien/papayapower/blob/main/docs/HELP.md"
+        out = []
+        for line in text.splitlines():
+            esc = GLib.markup_escape_text(line.strip())
+            esc = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", esc)
+            esc = re.sub(r"`(.+?)`", r"<tt>\1</tt>", esc)
+            if esc.startswith("# "):
+                out.append(f'<span size="x-large" weight="bold">{esc[2:]}</span>')
+            elif esc.startswith("## "):
+                out.append(f'\n<span size="large" weight="bold">{esc[3:]}</span>')
+            elif esc.startswith("- "):
+                out.append("  •  " + esc[2:])
+            elif esc:
+                out.append(esc)
+        label = Gtk.Label(use_markup=True, wrap=True, xalign=0, selectable=True,
+                          margin_top=18, margin_bottom=18, margin_start=24, margin_end=24)
+        label.set_markup("\n".join(out))
+        sc = Gtk.ScrolledWindow(vexpand=True)
+        sc.set_child(label)
+        tb = Adw.ToolbarView()
+        tb.add_top_bar(Adw.HeaderBar())
+        tb.set_content(sc)
+        Adw.Window(title="PapayaPower Help", default_width=720, default_height=640,
+                   content=tb, transient_for=self).present()
 
     def about(self, *_):
         Adw.AboutDialog(application_name="PapayaPower", version=__version__, developer_name="Frédéric Guariento",

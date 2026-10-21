@@ -33,6 +33,7 @@ PY
 mkdir -p "$LIB" "$BIN" "$APPS" "$ICONS" "$UNITS"
 rm -rf "$LIB/papayapower"
 cp -r papayapower "$LIB/"
+cp ../docs/HELP.md "$LIB/papayapower/HELP.md"
 find "$LIB" -name __pycache__ -prune -exec rm -rf {} +
 
 cat > "$BIN/papaya" <<SH

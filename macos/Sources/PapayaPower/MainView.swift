@@ -132,6 +132,7 @@ struct MainView: View {
             ToolbarItemGroup {
                 Button { model.refresh(); model.scanIOS(); model.fetchPeers() } label: { Image(systemName: "arrow.clockwise") }
                     .help("Refresh")
+                HelpButton()
             }
         }
     }

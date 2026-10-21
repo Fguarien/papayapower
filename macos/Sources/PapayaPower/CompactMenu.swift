@@ -26,6 +26,7 @@ struct CompactMenuView: View {
                     .font(.system(size: 11)).foregroundStyle(.tertiary)
                 Spacer()
                 SettingsButton()
+                HelpButton()
                 Spacer()
                 Button {
                     NSApp.activate(ignoringOtherApps: true)

@@ -68,6 +68,7 @@ if [ ! -f "$OUT/AppIcon.icns" ] || [ Tools/make-icon.swift -nt "$OUT/AppIcon.icn
   iconutil -c icns "$ICONSET" -o "$OUT/AppIcon.icns"
 fi
 cp "$OUT/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+cp ../docs/HELP.md "$APP/Contents/Resources/HELP.md"
 
 echo "==> sign"
 SIGN_ID="${PAPAYA_SIGN_ID:-}"
