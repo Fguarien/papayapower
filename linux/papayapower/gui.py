@@ -33,7 +33,8 @@ def _rgb_charge(c):
 def _rgb_health(h):
     if h is None:
         return GREY
-    return RED if h < 0.6 else AMBER if h < 0.8 else ORANGE
+    # Same scale as macOS: green only above 95 % (as good as new).
+    return RED if h < 0.6 else AMBER if h < 0.8 else ORANGE if h <= 0.95 else GREEN
 
 
 class Gauge(Gtk.DrawingArea):

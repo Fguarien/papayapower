@@ -97,6 +97,15 @@ Versioning follows [Semantic Versioning](https://semver.org): `MAJOR.MINOR.PATCH
 `macos/VERSION` and `linux/papayapower/__init__.py` always carry the same number; each release is
 a `vX.Y.Z` tag with its DMG on the releases page.
 
+### 1.0.5 — 2026-10-22
+
+- **Health colour, one scale everywhere** (rings, bars, macOS and Linux): red under 60 %,
+  orange under 80 %, papaya up to 95 %, **green above 95 %** — the three macOS views each had
+  their own thresholds.
+- **Recent iOS in percent only**: when the diagnostics relay answers `MaxCapacity = 100` with no
+  mAh and no design capacity (iPhone 13 Pro Max on iOS 27), the value is a charge level, no
+  longer published as « 100 mAh full charge ». Health stays unknown for these devices.
+
 ### 1.0.4 — 2026-10-22
 
 Linux only (the macOS app is unchanged, no new DMG):

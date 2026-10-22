@@ -46,11 +46,18 @@ public enum MacBattery {
         let rawCur = int(p["AppleRawCurrentCapacity"])
         let maxCap = int(p["NominalChargeCapacity"]) ?? int(p["MaxCapacity"])
         let curCap = int(p["CurrentCapacity"])
-        s.fullChargeCapacity = rawMax ?? maxCap
-        s.currentCapacity = rawCur ?? curCap
         s.designCapacity = int(p["DesignCapacity"])
-        if let cur = s.currentCapacity, let full = s.fullChargeCapacity, full > 0 {
-            s.chargePercent = min(100, Double(cur) / Double(full) * 100)
+        if rawMax == nil, int(p["NominalChargeCapacity"]) == nil, s.designCapacity == nil,
+           let m = maxCap, m <= 100 {
+            // Recent iOS answers the diagnostics relay in percent only (MaxCapacity = 100,
+            // no mAh, no design capacity): a charge level, not capacities — and no health.
+            s.chargePercent = curCap.map { Double(min($0, 100)) }
+        } else {
+            s.fullChargeCapacity = rawMax ?? maxCap
+            s.currentCapacity = rawCur ?? curCap
+            if let cur = s.currentCapacity, let full = s.fullChargeCapacity, full > 0 {
+                s.chargePercent = min(100, Double(cur) / Double(full) * 100)
+            }
         }
 
         s.cycleCount = int(p["CycleCount"])

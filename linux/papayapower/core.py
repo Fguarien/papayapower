@@ -464,9 +464,17 @@ def fill_from_ioreg(b: Battery, p: dict[str, Any]) -> None:
             return None
         return v - (1 << 64) if v >= (1 << 63) else v
 
-    b.full_charge_capacity = i("AppleRawMaxCapacity") or i("NominalChargeCapacity") or i("MaxCapacity")
-    b.current_capacity = i("AppleRawCurrentCapacity") or i("CurrentCapacity")
     b.design_capacity = i("DesignCapacity")
+    full = i("AppleRawMaxCapacity") or i("NominalChargeCapacity") or i("MaxCapacity")
+    if (not i("AppleRawMaxCapacity") and not i("NominalChargeCapacity") and not b.design_capacity
+            and full is not None and full <= 100):
+        # Recent iOS answers in percent only (MaxCapacity = 100): a charge level, no mAh, no health.
+        cur = i("CurrentCapacity")
+        if cur is not None:
+            b.charge_percent = float(min(cur, 100))
+    else:
+        b.full_charge_capacity = full
+        b.current_capacity = i("AppleRawCurrentCapacity") or i("CurrentCapacity")
     b.cycle_count = i("CycleCount")
     if i("Temperature") is not None:
         b.temperature = i("Temperature") / 100

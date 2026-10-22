@@ -298,8 +298,7 @@ struct OverviewView: View {
     }
 
     var healthTint: Color {
-        guard let h = s.health else { return .gray }
-        return h < 0.6 ? .red : h < 0.8 ? .orange : Color(red: 0.95, green: 0.55, blue: 0.15)
+        Fmt.healthTint(s.health)
     }
 }
 

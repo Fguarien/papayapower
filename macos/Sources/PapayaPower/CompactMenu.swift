@@ -151,8 +151,7 @@ struct ThinBar: View {
     }
 
     static func healthColor(_ h: Double?) -> Color {
-        guard let h else { return .gray }
-        return h < 0.5 ? .red : h < 0.8 ? Color(red: 0.80, green: 0.62, blue: 0.10) : .green
+        Fmt.healthTint(h)
     }
 
     /// "1m", "45m", "2h 05m".

@@ -113,9 +113,11 @@ enum Fmt {
         v.map { NumberFormatter.localizedString(from: NSNumber(value: $0), number: .decimal) + " mAh" }
     }
 
+    /// One scale for every health ring and bar: red < 60 %, orange < 80 %, papaya up to 95 %,
+    /// green above 95 % (a battery as good as new).
     static func healthTint(_ h: Double?) -> Color {
         guard let h else { return .gray }
-        return h < 0.6 ? .red : h < 0.8 ? .orange : .green
+        return h < 0.6 ? .red : h < 0.8 ? .orange : h <= 0.95 ? Color(red: 0.95, green: 0.55, blue: 0.15) : .green
     }
 
     static func chargeTint(_ c: Double?) -> Color {

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "local.papaya",
   "name": "PapayaPower",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "PapayaPower",
   "description": "Battery charge and health in the Omarchy bar (reads `papaya --waybar` every 30 s); click opens PapayaPower",
   "kinds": [
