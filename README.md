@@ -8,7 +8,7 @@ platform, and one view of every computer at home.
 - **macOS** — SwiftUI app living in the menu bar: a compact panel, a PapayaPower window
   (This Mac / History / iPhone & iPad / Network) and a Details window; universal binary
   (Apple silicon + Intel), macOS 13 Ventura or later.
-- **Linux** — GTK 4 / libadwaita app, a `papaya` command line and a Waybar module
+- **Linux** — GTK 4 / libadwaita app, a `papaya` command line, an Omarchy bar widget or a Waybar module
   (built for Omarchy / Hyprland, works on any desktop).
 
 Original code, MIT licence. It reads the same public sources every battery tool reads
@@ -49,6 +49,11 @@ The key is read from Settings, else from `~/Library/Application Support/PapayaPo
 else from `/Users/Shared/PapayaPower/network.key` (machine-wide, so an administrator can set it
 for every account).
 
+On **Linux** the member is the systemd user service `papayapower-peer` (`papaya --serve`): the
+same HTTP answer on TCP **47823**, announced through Avahi (`avahi-publish`). The key is
+`~/.config/papayapower/network.key`, read on each request. Open TCP 47823 to the LAN in the
+firewall; mDNS needs nothing with ufw (its default rules allow it).
+
 ## Install
 
 ### macOS
@@ -73,11 +78,13 @@ The `papaya` command line ships inside the app (`PapayaPower.app/Contents/Helper
 
 ```bash
 sudo pacman -S --needed python-gobject python-cairo gtk4 libadwaita upower libimobiledevice usbmuxd libnotify
-cd linux && ./install.sh          # ~/.local, desktop entry, systemd user timer
+sudo pacman -S --needed avahi    # member: Bonjour announce (usually already there)
+cd linux && ./install.sh          # ~/.local, desktop entry, systemd user timer + member service
 ```
 
-Then add the Waybar module from `linux/waybar/papaya.jsonc` and its style from
-`linux/waybar/papaya.css`.
+**Omarchy 4** (Quickshell bar): `install.sh` installs and enables the bar widget `local.papaya`
+(`linux/omarchy/local.papaya/`); move it with `omarchy bar move`. **Waybar** elsewhere: add the
+module from `linux/waybar/papaya.jsonc` and its style from `linux/waybar/papaya.css`.
 
 ## Help
 
@@ -89,6 +96,18 @@ by **Help › PapayaPower Help** (⌘?) or the **?** button on macOS, and by **M
 Versioning follows [Semantic Versioning](https://semver.org): `MAJOR.MINOR.PATCH`.
 `macos/VERSION` and `linux/papayapower/__init__.py` always carry the same number; each release is
 a `vX.Y.Z` tag with its DMG on the releases page.
+
+### 1.0.4 — 2026-10-22
+
+Linux only (the macOS app is unchanged, no new DMG):
+
+- **Member on Linux**: `papaya --serve` / service `papayapower-peer` answers the master like a
+  Mac does (Bonjour through Avahi, TCP 47823, network key, local addresses only). A Linux laptop
+  now shows on the master and in its Prometheus export.
+- **Omarchy 4 bar widget** `local.papaya` (Quickshell): charge, tooltip, click opens the app.
+- **Gauge out of calibration** flagged: when a worn gauge reports more charge left than its own
+  full charge capacity, health is marked unreliable (summary, tooltip, window) and no time to
+  full is computed. The numbers are still shown as read.
 
 ### 1.0.3 — 2026-10-21
 

@@ -59,6 +59,7 @@ class Battery:
     battery_model: str | None = None
     technology: str | None = None
     lifetime: Lifetime | None = None
+    gauge_warning: str | None = None        # the gauge contradicts itself (see sysfs_batteries)
     raw: dict[str, str] = field(default_factory=dict)
 
     @property
@@ -206,6 +207,13 @@ def sysfs_batteries() -> list[Battery]:
             b.design_capacity = mah("energy_full_design")
             b.current_capacity = mah("energy_now")
         b.cycle_count = _int(raw.get("cycle_count")) or None
+        # A worn gauge (bq20z451 at 560+ cycles) can report more charge left than its own full
+        # charge capacity. Its numbers are then shown as read, never « fixed », but flagged:
+        # health and time estimates built on them are not to be trusted until a calibration.
+        if b.current_capacity and b.full_charge_capacity and b.current_capacity > b.full_charge_capacity:
+            b.gauge_warning = (f"Gauge out of calibration: {b.current_capacity} mAh left > "
+                               f"{b.full_charge_capacity} mAh full charge capacity. Health and times are "
+                               "unreliable — charge to 100 %, then run down to shutdown once.")
         status = raw.get("status", "")
         b.is_charging = status == "Charging"
         b.fully_charged = status == "Full"
@@ -230,7 +238,7 @@ def sysfs_batteries() -> list[Battery]:
             a = abs(b.amperage)
             if status == "Discharging" and a > 0:
                 b.time_to_empty = int(b.current_capacity / a * 60)
-            elif status == "Charging" and a > 0 and b.full_charge_capacity:
+            elif status == "Charging" and a > 0 and b.full_charge_capacity and not b.gauge_warning:
                 b.time_to_full = int(max(0, b.full_charge_capacity - b.current_capacity) / a * 60)
         out.append(b)
     out.sort(key=lambda x: x.kind != "laptop")

@@ -1,0 +1,12 @@
+[Unit]
+Description=PapayaPower — member: serve battery readings to the master (Bonjour _papayapower._tcp)
+After=network-online.target
+
+[Service]
+ExecStart=@BIN@/papaya --serve
+Restart=always
+RestartSec=30
+Nice=10
+
+[Install]
+WantedBy=default.target

@@ -7,6 +7,8 @@
   papaya --waybar        one JSON line for a Waybar custom module
   papaya --record        auto-save to history, notify, push (run by the systemd user timer)
   papaya --gui           open the window (same as `papayapower`)
+  papaya --serve         member: serve readings to the master over Bonjour (systemd user service)
+  papaya --peer-json     print what --serve answers
   --ios / --no-ios       include iPhone/iPad (default: settings)
   --nut host[:port]      also read a NUT server (repeatable; adds to settings)
 """
@@ -51,7 +53,8 @@ def summary(batteries, ups) -> str:
         if b.current_capacity is not None and b.full_charge_capacity:
             line("Current / full", f"{b.current_capacity} / {b.full_charge_capacity} mAh")
         line("Design capacity", f"{b.design_capacity} mAh" if b.design_capacity else None)
-        line("Health", core.fmt_pct(b.health * 100) if b.health else None)
+        line("Health", core.fmt_pct(b.health * 100) + (" (unreliable)" if b.gauge_warning else "") if b.health else None)
+        line("⚠ Gauge", b.gauge_warning)
         line("Cycles", b.cycle_count)
         line("Temperature", f"{b.temperature:.1f} °C" if b.temperature is not None else None)
         line("Battery power", f"{b.power_watts:+.1f} W" if b.power_watts is not None else None)
@@ -103,7 +106,8 @@ def waybar(batteries, ups, fmt: str) -> dict:
                 f"health {b.health * 100:.1f} %" if b.health else None,
                 f"{b.cycle_count} cycles" if b.cycle_count is not None else None,
                 f"{b.power_watts:+.1f} W" if b.power_watts is not None else None]
-        tips.append(f"<b>{b.device_name}</b>  " + " · ".join(x for x in bits if x))
+        tips.append(f"<b>{b.device_name}</b>  " + " · ".join(x for x in bits if x)
+                    + ("\n⚠ gauge out of calibration — health unreliable" if b.gauge_warning else ""))
     for u in ups:
         bits = [f"{u.charge_percent:.0f} %" if u.charge_percent is not None else None,
                 "ON BATTERY" if u.on_battery else "mains",
@@ -178,7 +182,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--ios", dest="ios", action="store_true", default=None)
     ap.add_argument("--no-ios", dest="ios", action="store_false")
     ap.add_argument("--nut", action="append", default=[])
+    ap.add_argument("--serve", action="store_true", help="member: serve readings to the master (Bonjour)")
+    ap.add_argument("--peer-json", action="store_true", help="print what --serve answers")
+    ap.add_argument("--port", type=int, default=None)
     a = ap.parse_args(argv)
+
+    if a.serve or a.peer_json:
+        from . import peer
+        if a.peer_json:
+            print(json.dumps(peer.readings(), indent=2, sort_keys=True))
+            return 0
+        return peer.serve(a.port or store.load_settings().get("peer_port") or peer.DEFAULT_PORT)
 
     if a.gui:
         from .gui import main as gui_main

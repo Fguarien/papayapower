@@ -227,8 +227,17 @@ class DevicePage(Gtk.Box):
                                   if b.current_capacity is not None and b.full_charge_capacity else
                                   ("Charging" if b.is_charging else ""))
         self.g2.caption.set_label(f"{b.full_charge_capacity} of {b.design_capacity} mAh design"
+                                  + (" — unreliable" if b.gauge_warning else "")
                                   if b.full_charge_capacity and b.design_capacity else "Not reported")
         self._clear(self.overview, self.detail_groups)
+        if b.gauge_warning:
+            warn = Adw.PreferencesGroup()
+            row = Adw.ActionRow(title="Gauge out of calibration", subtitle=b.gauge_warning)
+            row.add_prefix(Gtk.Image.new_from_icon_name("dialog-warning-symbolic"))
+            row.add_css_class("warning")
+            warn.add(row)
+            self.overview.add(warn)
+            self.detail_groups.append(warn)
         status = ", ".join(x for x in (
             "on power adapter" if b.external_connected else "on battery" if b.external_connected is False else None,
             "charging" if b.is_charging else None, "fully charged" if b.fully_charged else None) if x)

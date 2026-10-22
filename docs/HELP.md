@@ -5,7 +5,7 @@ PapayaPower shows the health of the batteries around you: this computer, your iP
 ## Getting started
 
 - **macOS**: PapayaPower lives in the **menu bar**. Click its battery icon for the essentials; click the **expand** button (bottom right) to open the PapayaPower window.
-- **Linux**: open **PapayaPower** from your launcher. The Waybar module shows the charge and opens the app on click.
+- **Linux**: open **PapayaPower** from your launcher. On Omarchy the bar widget (Waybar module elsewhere) shows the charge and opens the app on click.
 - Nothing to set up: readings start at once. Settings are only needed for the network, notifications and monitoring.
 
 ## The three views (macOS)
@@ -44,6 +44,8 @@ PapayaPower shows the health of the batteries around you: this computer, your iP
 - **Master**: finds every member, shows their batteries (Details › Network, and the Network tab), saves them in its history and publishes them to Prometheus.
 - Set the role in **Settings › General › Local network**. Use the same **network key** everywhere: a member then answers only a master that knows it.
 - The key can also be stored in `/Users/Shared/PapayaPower/network.key` (all accounts of the Mac) or `~/Library/Application Support/PapayaPower/network.key`.
+- **Linux** is always a member: the `papayapower-peer` service shares its readings (TCP 47823 must be open to the local network). The key goes in `~/.config/papayapower/network.key`.
+- **Gauge out of calibration**: if the battery reports more charge left than its full capacity, its health is marked *unreliable*. Charge to 100 %, then let the computer run down until it shuts down, once.
 
 ## UPS
 
@@ -69,7 +71,7 @@ PapayaPower shows the health of the batteries around you: this computer, your iP
 ## Command line
 
 - macOS: `/Applications/PapayaPower.app/Contents/Helpers/papaya` · Linux: `papaya`.
-- `papaya` (summary), `--json`, `--raw`, `--metrics`, `--ios`, `--nut host[:port]`, `--peers` (macOS; key in the `PAPAYA_KEY` variable). Linux also: `--waybar`, `--record`, `--gui`.
+- `papaya` (summary), `--json`, `--raw`, `--metrics`, `--ios`, `--nut host[:port]`, `--peers` (macOS; key in the `PAPAYA_KEY` variable). Linux also: `--waybar`, `--record`, `--gui`, `--serve` (member), `--peer-json`.
 
 ## Troubleshooting
 
